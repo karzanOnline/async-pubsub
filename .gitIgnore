@@ -1,0 +1,9 @@
+node_modules
+.idea
+.vscode
+*.log
+*.mdb
+*.ldb
+*.db
+# 根目录下的zip文件都不上传
+/*.zip
