@@ -22,95 +22,199 @@
  TODO async pubsub
  */
 
-var pubsub = {};
-(function (q) {
+// var pubsub = {};
 
-    var topics = {}, //回到存放的数组
-        subUid = 0;
+(function (root, factory) {
+    if(typeof define ==='function' && define.amd){
+        define(factory)
+    }else if(typeof exports === 'object'){
+        module.exports = factory();
+    }else{
+        root.pubsub = {};
+        factory(root.pubsub);
+    }
 
-    // 订阅方法
-    q.subscribe = function (topic, func) {
+})(this, function (q) {
+    (function (q) {
+        var topics = {}, //回到存放的数组
+            subUid = 0;
 
-        if(!topics[topic]){
-            topics[topic] = []
-        }
+        // 订阅方法
+        q.subscribe = function (topic, func) {
 
-        var token = (++subUid).toString();
-        topics[topic].push({
-            token : token,
-            func : func
-        });
-
-        return token
-    };
-
-    // 发布方法
-    q.publish = function (topic, args) {
-
-        if(!topics[topic]){
-            return false
-        }
-
-        setTimeout(function () {
-            var subscribes = topics[topic],
-                len = subscribes ? subscribes.length : 0;
-
-            while (len--){
-                subscribes[len].func(topic, args)
+            if(!topics[topic]){
+                topics[topic] = []
             }
-        }, 0);
 
-        return true
-    };
+            var token = (++subUid).toString();
+            topics[topic].push({
+                token : token,
+                func : func
+            });
 
-    // 根据token 退订已订阅的token方法
-    // 无关topic
-    q.unSubscribe = function (token) {
+            return token
+        };
 
-        for(var m in topics){
-            if(topics[m]){
-                for(var i = 0, j = topics[m].length; i<j ; i++){
-                    if(topics[m][i].token === token){
-                        topics[m].splice(i, 1);
-                        return token
+        // 发布方法
+        q.publish = function (topic, args) {
+
+            if(!topics[topic]){
+                return false
+            }
+
+            setTimeout(function () {
+                var subscribes = topics[topic],
+                    len = subscribes ? subscribes.length : 0;
+
+                while (len--){
+                    subscribes[len].func(topic, args)
+                }
+            }, 0);
+
+            return true
+        };
+
+        // 根据token 退订已订阅的token方法
+        // 无关topic
+        q.unSubscribe = function (token) {
+
+            for(var m in topics){
+                if(topics[m]){
+                    for(var i = 0, j = topics[m].length; i<j ; i++){
+                        if(topics[m][i].token === token){
+                            topics[m].splice(i, 1);
+                            return token
+                        }
                     }
                 }
             }
-        }
-    };
+        };
 
-    // 根据topic退订
-    // @boolean boolean (是否全部退订) 默认false 全部退订
-    q.unTopic = function (topic, boolean) {
+        // 根据topic退订
+        // @boolean boolean (是否全部退订) 默认false 全部退订
+        q.unTopic = function (topic, boolean) {
 
-        if(!topic){
-            // 主题是否存在
-            return false
-        }
-        if(!boolean){
-            // 默认全部退订
-            if(topics[topic]){
-
-                delete topics[topic]
+            if(!topic){
+                // 主题是否存在
+                return false
             }
-        }
-        return true
+            if(!boolean){
+                // 默认全部退订
+                if(topics[topic]){
 
-    };
+                    delete topics[topic]
+                }
+            }
+            return true
 
-    // 所有订阅的topic
-    q.getAllTopic = function () {
+        };
 
-        var arrTopics = [];
+        // 所有订阅的topic
+        q.getAllTopic = function () {
 
-        if(!Object.keys(topics).length){
+            var arrTopics = [];
+
+            if(!Object.keys(topics).length){
+                return arrTopics
+            }
+            for (var m in topics){
+
+                arrTopics.push(m)
+            }
             return arrTopics
         }
-        for (var m in topics){
+    })(q)
+});
 
-            arrTopics.push(m)
-        }
-        return arrTopics
-    }
 
-})(pubsub);
+// (function (q) {
+//
+//     var topics = {}, //回到存放的数组
+//         subUid = 0;
+//
+//     // 订阅方法
+//     q.subscribe = function (topic, func) {
+//
+//         if(!topics[topic]){
+//             topics[topic] = []
+//         }
+//
+//         var token = (++subUid).toString();
+//         topics[topic].push({
+//             token : token,
+//             func : func
+//         });
+//
+//         return token
+//     };
+//
+//     // 发布方法
+//     q.publish = function (topic, args) {
+//
+//         if(!topics[topic]){
+//             return false
+//         }
+//
+//         setTimeout(function () {
+//             var subscribes = topics[topic],
+//                 len = subscribes ? subscribes.length : 0;
+//
+//             while (len--){
+//                 subscribes[len].func(topic, args)
+//             }
+//         }, 0);
+//
+//         return true
+//     };
+//
+//     // 根据token 退订已订阅的token方法
+//     // 无关topic
+//     q.unSubscribe = function (token) {
+//
+//         for(var m in topics){
+//             if(topics[m]){
+//                 for(var i = 0, j = topics[m].length; i<j ; i++){
+//                     if(topics[m][i].token === token){
+//                         topics[m].splice(i, 1);
+//                         return token
+//                     }
+//                 }
+//             }
+//         }
+//     };
+//
+//     // 根据topic退订
+//     // @boolean boolean (是否全部退订) 默认false 全部退订
+//     q.unTopic = function (topic, boolean) {
+//
+//         if(!topic){
+//             // 主题是否存在
+//             return false
+//         }
+//         if(!boolean){
+//             // 默认全部退订
+//             if(topics[topic]){
+//
+//                 delete topics[topic]
+//             }
+//         }
+//         return true
+//
+//     };
+//
+//     // 所有订阅的topic
+//     q.getAllTopic = function () {
+//
+//         var arrTopics = [];
+//
+//         if(!Object.keys(topics).length){
+//             return arrTopics
+//         }
+//         for (var m in topics){
+//
+//             arrTopics.push(m)
+//         }
+//         return arrTopics
+//     }
+//
+// })(pubsub);
