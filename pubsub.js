@@ -25,20 +25,19 @@
 // var pubsub = {};
 
 (function (root, factory) {
+    root.pubsub = {};
     if(typeof define ==='function' && define.amd){
-        define(factory)
+        define(factory(root.pubsub))
     }else if(typeof exports === 'object'){
-        module.exports = factory();
+        module.exports = factory(root.pubsub);
     }else{
-        root.pubsub = {};
         factory(root.pubsub);
     }
 
 })(this, function (q) {
-    (function (q) {
+
         var topics = {}, //回到存放的数组
             subUid = 0;
-
         // 订阅方法
         q.subscribe = function (topic, func) {
 
@@ -122,99 +121,9 @@
                 arrTopics.push(m)
             }
             return arrTopics
-        }
-    })(q)
+        };
+
+        return q
+
 });
 
-
-// (function (q) {
-//
-//     var topics = {}, //回到存放的数组
-//         subUid = 0;
-//
-//     // 订阅方法
-//     q.subscribe = function (topic, func) {
-//
-//         if(!topics[topic]){
-//             topics[topic] = []
-//         }
-//
-//         var token = (++subUid).toString();
-//         topics[topic].push({
-//             token : token,
-//             func : func
-//         });
-//
-//         return token
-//     };
-//
-//     // 发布方法
-//     q.publish = function (topic, args) {
-//
-//         if(!topics[topic]){
-//             return false
-//         }
-//
-//         setTimeout(function () {
-//             var subscribes = topics[topic],
-//                 len = subscribes ? subscribes.length : 0;
-//
-//             while (len--){
-//                 subscribes[len].func(topic, args)
-//             }
-//         }, 0);
-//
-//         return true
-//     };
-//
-//     // 根据token 退订已订阅的token方法
-//     // 无关topic
-//     q.unSubscribe = function (token) {
-//
-//         for(var m in topics){
-//             if(topics[m]){
-//                 for(var i = 0, j = topics[m].length; i<j ; i++){
-//                     if(topics[m][i].token === token){
-//                         topics[m].splice(i, 1);
-//                         return token
-//                     }
-//                 }
-//             }
-//         }
-//     };
-//
-//     // 根据topic退订
-//     // @boolean boolean (是否全部退订) 默认false 全部退订
-//     q.unTopic = function (topic, boolean) {
-//
-//         if(!topic){
-//             // 主题是否存在
-//             return false
-//         }
-//         if(!boolean){
-//             // 默认全部退订
-//             if(topics[topic]){
-//
-//                 delete topics[topic]
-//             }
-//         }
-//         return true
-//
-//     };
-//
-//     // 所有订阅的topic
-//     q.getAllTopic = function () {
-//
-//         var arrTopics = [];
-//
-//         if(!Object.keys(topics).length){
-//             return arrTopics
-//         }
-//         for (var m in topics){
-//
-//             arrTopics.push(m)
-//         }
-//         return arrTopics
-//     }
-//
-// })(pubsub);
